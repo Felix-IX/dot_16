@@ -65,13 +65,28 @@ impl Memory {
     }
 
     pub fn read(&self, addr: usize) -> u8 {
-        assert!(addr < MEM_SIZE);
+        assert!(addr < MEM_SIZE, "Invalid memory address: {}", addr);
         self.mem[addr]
     }
 
     pub fn write(&mut self, addr: usize, val: u8) {
-        assert!(addr < MEM_SIZE);
+        assert!(addr < MEM_SIZE, "Invalid memory address: {}", addr);
         self.mem[addr] = val;
+    }
+
+    pub fn set(&mut self, addr: usize, val: u8, len: usize) {
+        assert!(addr + len <= MEM_SIZE, "Memory out of bounds: {} + {} > {}", addr, len, MEM_SIZE);
+        let temp = vec![val; len];
+        self.mem[addr..addr + len].copy_from_slice(&temp);       
+    }
+
+    pub fn copy(&mut self, dest: usize, src: usize, len: usize) {
+        assert!(src + len <= MEM_SIZE,
+                "Memory from source out of bounds: {} + {} > {}", src, len, MEM_SIZE);
+        assert!(dest + len <= MEM_SIZE,
+                "Memory to destination out of bounds: {} + {} > {}", dest, len, MEM_SIZE);
+        let temp = self.mem[src..src + len].to_vec();
+        self.mem[dest..dest + len].copy_from_slice(&temp);
     }
 
     // These are the read-only getters
