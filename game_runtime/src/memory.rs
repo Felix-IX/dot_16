@@ -55,7 +55,7 @@ impl Memory {
         }))
     }
 
-    pub fn init(&mut self, cart: Cartridge) {
+    pub fn init(&mut self, cart: &Cartridge) {
         let data = cart.data();
         if data.len() > (SFX_END - SPRITE_SHEET_1_START) {
             panic!("Cartridge data too large for memory region");

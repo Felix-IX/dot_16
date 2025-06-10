@@ -1,28 +1,102 @@
-use crate::memory::Memory;
+use std::error::Error;
 use lang::rom_loader::Cartridge;
-use mlua::Lua;
+use mlua::{Function, Value};
+use crate::bindings::register_pico8_apis;
+use crate::runtime::Runtime;
 
-pub fn init() {
-    let cartridge = Cartridge::new("../examples/ppg-1.p8.png").expect("Could not load cartridge");
-
-    let mem = Memory::new();
-
-    mem.borrow_mut().init(cartridge);
+pub struct Game {
+    runtime: Runtime,
+    cartridge: Cartridge,
+    init_fn: Option<Function>,
+    update_fn: Option<Function>,
+    draw_fn: Option<Function>,
 }
 
-pub fn run(code: &Vec<u8>) {
-    let lua_vm = Lua::new();
-    lua_vm.load(code).exec().unwrap();
+impl Game {
+    pub fn new(url: &str) -> Result<Self, Box<dyn Error>> {
+        let runtime = Runtime::new()?;
+        let cartridge = Cartridge::new(url)?;
+
+        Ok(Game {
+            runtime,
+            cartridge,
+            init_fn: None,
+            update_fn: None,
+            draw_fn: None
+        })
+    }
+
+    // Getters
+    pub fn runtime(&self) -> &Runtime {
+        &self.runtime
+    }
+    
+    pub fn cartridge(&self) -> &Cartridge {
+        &self.cartridge
+    }
+    
+    pub fn init(&mut self) {
+        self.runtime.init(&self.cartridge);
+    }
+
+    pub fn run(&mut self) {
+        let code = self.cartridge.code();
+
+        let globals = self.runtime().lua_vm().globals();
+
+        for pair in globals.clone().pairs::<String, Value>() {
+            match pair {
+                Ok((k, v)) => {
+                    println!("Lua global: {} => {:?}", k, v);
+                }
+                Err(e) => println!("Error reading global: {:?}", e),
+            }
+        }
+
+        register_pico8_apis(&self, &globals).expect("Failed to register Lua APIs");
+
+        self.runtime.lua_vm().load(code).exec().expect("Failed to run game");
+        
+        match globals.get::<Function>("_init") {
+            Ok(fn_) => self.init_fn = Some(fn_),
+            Err(_) => {}
+        }
+
+        match globals.get::<Function>("_update") {
+            Ok(fn_) => self.update_fn = Some(fn_),
+            Err(_) => {}
+        }
+
+        match globals.get::<Function>("_draw") {
+            Ok(fn_) => self.draw_fn = Some(fn_),
+            Err(_) => {}
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    
+    #[test]
+    fn test_new() {
+        let _ = Game::new("../examples/ppg-1.p8.png")
+            .expect("Failed to load game");
+    }
 
     #[test]
     fn test_init() {
-        let cartridge = Cartridge::new("../examples/ppg-1.p8.png").unwrap();
-        let mut memory = Memory::new();
-        memory.borrow_mut().init(cartridge)
+        let mut game = Game::new("../examples/ppg-1.p8.png")
+            .expect("Failed to load game");
+        
+        game.init();
+        
+        game.run();
+        
+        assert!(game.init_fn.is_some());
+        // assert!(game.update_fn.is_some()); // Since not every game has an update function
+        assert!(game.draw_fn.is_some());
+
+        game.init();
     }
 }

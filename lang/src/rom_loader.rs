@@ -2,6 +2,7 @@ use image::ImageReader;
 use std::error::Error;
 use std::path::Path;
 use std::{fs, io};
+use crate::preprocessor::preprocess_pico8_lua_bytes;
 
 struct Rom(Vec<u8>);
 impl Rom {
@@ -27,8 +28,8 @@ pub struct Cartridge {
 impl Default for Cartridge {
     fn default() -> Self {
         Cartridge {
-            code: Vec::new(),
-            data: Vec::new(),
+            code: Vec::with_capacity(256),
+            data: Vec::with_capacity(256),
         }
     }
 }
@@ -44,7 +45,7 @@ impl Cartridge {
             .to_string_lossy()
             .ends_with(".p8.png")
         {
-            Ok(read_p8_png(path)?.parse_p8_png().decompress_new_format()?)
+            Ok(read_p8_png(path)?.parse_p8_png().decompress_new_format()?.preprocess()?)
         } else if path.file_name().unwrap().to_string_lossy().ends_with(".p8") {
             Ok(read_p8(path)?.parse_p8()) // Not supported yet
         } else {
@@ -172,6 +173,13 @@ impl Cartridge {
 
         Ok(self)
     }
+    
+    pub fn preprocess(mut self) -> Result<Self, Box<dyn Error>> {
+        let code = self.code.clone();
+        self.code = preprocess_pico8_lua_bytes(&code, "../lang/pico8_patcher/pico8-to-lua.lua")?;
+        
+        Ok(self)
+    }
 }
 
 fn read_p8_png(path: &Path) -> Result<Rom, Box<dyn Error>> {
@@ -212,8 +220,8 @@ mod tests {
         let b = Cartridge::new("../examples/ppg-1.p8.png")
             .unwrap()
             .code
-            .windows(b"pico".len())
-            .any(|window| window == b"pico");
+            .windows(2)
+            .any(|w| w == b"--");
 
         assert!(b, "Failed to read .p8.png file, algo incorrect!");
     }
@@ -222,8 +230,8 @@ mod tests {
     fn test_decompress_p8_png() {
         let cart = Cartridge::new("../examples/ppg-1.p8.png").unwrap();
 
-        let s = String::from_utf8_lossy(&cart.code);
+        let s = &cart.code;
 
-        assert!(s.ends_with("end"));
+        assert!(s.starts_with(b"--"));
     }
 }
