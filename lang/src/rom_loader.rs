@@ -1,8 +1,8 @@
+use crate::preprocessor::preprocess_pico8_lua_bytes;
 use image::ImageReader;
 use std::error::Error;
 use std::path::Path;
 use std::{fs, io};
-use crate::preprocessor::preprocess_pico8_lua_bytes;
 
 struct Rom(Vec<u8>);
 impl Rom {
@@ -37,15 +37,21 @@ impl Default for Cartridge {
 impl Cartridge {
     pub fn new(url: &str) -> Result<Self, Box<dyn Error>> {
         let path = Path::new(url);
-        if !path.exists() {
-            Err("No such file found in".into())
-        } else if path
+        /*if !path.try_exists().unwrap() {
+            Err(format!("No such file found in {url}").into())
+        } else */
+        // let cwd = std::env::current_dir()?;
+        // println!("{:?}, {:?}", cwd, path);
+        if path
             .file_name()
             .unwrap()
             .to_string_lossy()
             .ends_with(".p8.png")
         {
-            Ok(read_p8_png(path)?.parse_p8_png().decompress_new_format()?.preprocess()?)
+            Ok(read_p8_png(path)?
+                .parse_p8_png()
+                .decompress_new_format()?
+                .preprocess()?)
         } else if path.file_name().unwrap().to_string_lossy().ends_with(".p8") {
             Ok(read_p8(path)?.parse_p8()) // Not supported yet
         } else {
@@ -173,11 +179,11 @@ impl Cartridge {
 
         Ok(self)
     }
-    
+
     pub fn preprocess(mut self) -> Result<Self, Box<dyn Error>> {
         let code = self.code.clone();
-        self.code = preprocess_pico8_lua_bytes(&code, "../lang/pico8_patcher/pico8-to-lua.lua")?;
-        
+        self.code = preprocess_pico8_lua_bytes(&code, "./lang/pico8_patcher/pico8-to-lua.lua")?;
+
         Ok(self)
     }
 }

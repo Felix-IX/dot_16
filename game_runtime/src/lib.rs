@@ -1,4 +1,4 @@
 mod bindings;
-mod game;
+pub mod game;
 mod memory;
 mod runtime;

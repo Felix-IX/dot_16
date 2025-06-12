@@ -1,2 +1,2 @@
-pub mod rom_loader;
 mod preprocessor;
+pub mod rom_loader;

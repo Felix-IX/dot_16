@@ -753,6 +753,7 @@ dependencies = [
 name = "graphics"
 version = "0.1.0"
 dependencies = [
+ "game_runtime",
  "pixels",
  "winit",
 ]

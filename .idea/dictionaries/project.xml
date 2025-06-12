@@ -5,6 +5,7 @@
       <w>memcpy</w>
       <w>memset</w>
       <w>tictactoe</w>
+      <w>vram</w>
     </words>
   </dictionary>
 </component>
