@@ -12,3 +12,14 @@ dot_16/
 Dev Journal
 
 https://www.notion.so/team/20bde671-cbe9-818c-ab4c-0042ec417d37/join
+
+---
+
+# Third-Party Code Attributions
+
+## pico8-to-lua
+
+This project includes code adapted from [benwiley4000/pico8-to-lua](https://github.com/benwiley4000/pico8-to-lua),  
+which is licensed under the [zlib License](https://opensource.org/licenses/Zlib).
+
+---

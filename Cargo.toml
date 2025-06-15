@@ -9,6 +9,7 @@ members = ["lang", "game_runtime", "graphics", "utils"]
 name = "dot-16"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
 
 [dependencies]
 

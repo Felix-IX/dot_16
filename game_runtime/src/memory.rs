@@ -107,10 +107,11 @@ impl Memory {
     }
 
     // These are the read-only getters
-    pub fn read_sprite_sheet(&self) -> &[u8] { // for debug purposes
+    pub fn read_sprite_sheet(&self) -> &[u8] {
+        // for debug purposes
         &self.mem[SPRITE_SHEET_1_START..=SPRITE_SHEET_1_END]
     }
-    
+
     pub fn read_sprite(&self, sprite: usize) -> [u8; 32] {
         let mut sprite_data = [0u8; 32];
         let base_addr = 512 * (sprite / 16) + 4 * (sprite % 16);

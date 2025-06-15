@@ -17,10 +17,7 @@ impl Game {
     pub fn new(path: PathBuf, path_to_preprocessor: PathBuf) -> Result<Self, Box<dyn Error>> {
         let runtime = Runtime::new()?;
         let cartridge = Cartridge::new(path, path_to_preprocessor)?;
-        runtime
-            .memory()
-            .borrow_mut()
-            .init(&cartridge);
+        runtime.memory().borrow_mut().init(&cartridge);
 
         Ok(Game {
             runtime,

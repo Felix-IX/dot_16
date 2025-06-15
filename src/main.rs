@@ -1,8 +1,8 @@
 use env_logger;
 use game_runtime;
 use graphics::screen::Screen;
-use utils::path_resolver::path_from_workspace_root;
 use log::info;
+use utils::path_resolver::path_from_workspace_root;
 
 fn main() {
     env_logger::init();
