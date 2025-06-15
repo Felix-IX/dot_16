@@ -9,9 +9,15 @@ dot_16/
 
 ---
 
-Dev Journal
+## 📘 Dev Journal
 
-https://www.notion.so/team/20bde671-cbe9-818c-ab4c-0042ec417d37/join
+[**Notion**](https://www.notion.so/team/20bde671-cbe9-818c-ab4c-0042ec417d37/join)
+
+---
+
+## 🛡️ Security Policy
+
+Please refer to our [Security Policy](./.github/SECURITY.md) for details on reporting vulnerabilities.
 
 ---
 
