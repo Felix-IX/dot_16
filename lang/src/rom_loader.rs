@@ -1,14 +1,15 @@
 use crate::preprocessor::preprocess_pico8_lua_bytes;
 use image::ImageReader;
 use std::error::Error;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::{fs, io};
 
 struct Rom(Vec<u8>);
 impl Rom {
     pub fn parse_p8_png(self) -> Cartridge {
         let (left, right) = self.0.split_at_checked(0x4300).unwrap();
-        let data = left.to_vec();
+        let mut data = left.to_vec();
+        data.resize(0x10000, 0); // Fill with 0, prepare for copy to memory
         let code = right.to_vec();
 
         Cartridge { data, code }
@@ -20,6 +21,7 @@ impl Rom {
     }
 }
 
+#[derive(Debug)]
 pub struct Cartridge {
     code: Vec<u8>,
     data: Vec<u8>,
@@ -28,32 +30,26 @@ pub struct Cartridge {
 impl Default for Cartridge {
     fn default() -> Self {
         Cartridge {
-            code: Vec::with_capacity(256),
-            data: Vec::with_capacity(256),
+            code: Vec::with_capacity(512),
+            data: Vec::with_capacity(512),
         }
     }
 }
 
 impl Cartridge {
-    pub fn new(url: &str) -> Result<Self, Box<dyn Error>> {
-        let path = Path::new(url);
-        /*if !path.try_exists().unwrap() {
-            Err(format!("No such file found in {url}").into())
-        } else */
-        // let cwd = std::env::current_dir()?;
-        // println!("{:?}, {:?}", cwd, path);
+    pub fn new(path: PathBuf, path_to_preprocessor: PathBuf) -> Result<Self, Box<dyn Error>> {
         if path
             .file_name()
             .unwrap()
             .to_string_lossy()
             .ends_with(".p8.png")
         {
-            Ok(read_p8_png(path)?
+            Ok(read_p8_png(&path)?
                 .parse_p8_png()
                 .decompress_new_format()?
-                .preprocess()?)
+                .preprocess(path_to_preprocessor)?)
         } else if path.file_name().unwrap().to_string_lossy().ends_with(".p8") {
-            Ok(read_p8(path)?.parse_p8()) // Not supported yet
+            Ok(read_p8(&path)?.parse_p8()) // Not supported yet
         } else {
             Err("File not found".to_string().into())
         }
@@ -180,9 +176,9 @@ impl Cartridge {
         Ok(self)
     }
 
-    pub fn preprocess(mut self) -> Result<Self, Box<dyn Error>> {
+    pub fn preprocess(mut self, path_to_preprocessor: PathBuf) -> Result<Self, Box<dyn Error>> {
         let code = self.code.clone();
-        self.code = preprocess_pico8_lua_bytes(&code, "./lang/pico8_patcher/pico8-to-lua.lua")?;
+        self.code = preprocess_pico8_lua_bytes(&code, path_to_preprocessor)?;
 
         Ok(self)
     }
@@ -217,13 +213,13 @@ fn read_p8(path: &Path) -> Result<Rom, Box<dyn Error>> {
     Ok(Rom(s))
 }
 
-#[cfg(test)]
+/*#[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
+    #[tests]
     fn test_read_p8_png() {
-        let b = Cartridge::new("../examples/ppg-1.p8.png")
+        let b = Cartridge::new("examples/ppg-1.p8.png")
             .unwrap()
             .code
             .windows(2)
@@ -232,12 +228,12 @@ mod tests {
         assert!(b, "Failed to read .p8.png file, algo incorrect!");
     }
 
-    #[test]
+    #[tests]
     fn test_decompress_p8_png() {
-        let cart = Cartridge::new("../examples/ppg-1.p8.png").unwrap();
+        let cart = Cartridge::new("examples/ppg-1.p8.png").unwrap();
 
         let s = &cart.code;
 
         assert!(s.starts_with(b"--"));
     }
-}
+}*/

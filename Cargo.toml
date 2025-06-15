@@ -2,4 +2,18 @@
 
 resolver = "3"
 
-members = ["lang", "game_runtime", "graphics"]
+members = ["lang", "game_runtime", "graphics", "utils"]
+
+[package]
+
+name = "dot-16"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+graphics = {path = "./graphics"}
+game_runtime = {path = "./game_runtime"}
+utils = {path = "./utils"}
+log = "0.4"
+env_logger = "0.11"

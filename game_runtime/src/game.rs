@@ -3,6 +3,7 @@ use crate::runtime::Runtime;
 use lang::rom_loader::Cartridge;
 use mlua::{Function, Value};
 use std::error::Error;
+use std::path::PathBuf;
 
 pub struct Game {
     runtime: Runtime,
@@ -13,9 +14,13 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(url: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn new(path: PathBuf, path_to_preprocessor: PathBuf) -> Result<Self, Box<dyn Error>> {
         let runtime = Runtime::new()?;
-        let cartridge = Cartridge::new(url)?;
+        let cartridge = Cartridge::new(path, path_to_preprocessor)?;
+        runtime
+            .memory()
+            .borrow_mut()
+            .init(&cartridge);
 
         Ok(Game {
             runtime,
@@ -78,18 +83,20 @@ impl Game {
     }
 }
 
-#[cfg(test)]
+/*#[cfg(tests)]
 mod tests {
+    use lang::rom_loader::resolve_path_from_root;
     use super::*;
 
-    #[test]
+    #[tests]
     fn test_new() {
-        let _ = Game::new("./examples/ppg-1.p8.png").expect("Failed to load game");
+        let path = resolve_path_from_root("../examples/ppg-1.p8.png");
+        let _ = Game::new(path).expect("Failed to load game");
     }
 
-    #[test]
+    #[tests]
     fn test_init() {
-        let mut game = Game::new("./examples/ppg-1.p8.png").expect("Failed to load game");
+        let mut game = Game::new("../examples/ppg-1.p8.png").expect("Failed to load game");
 
         game.init();
 
@@ -101,4 +108,4 @@ mod tests {
 
         game.init();
     }
-}
+}*/

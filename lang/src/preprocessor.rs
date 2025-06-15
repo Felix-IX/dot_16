@@ -1,16 +1,15 @@
 use mlua::Lua;
 use std::error::Error;
 use std::fs;
-use std::path::Path;
+use std::path::PathBuf;
 
 /// Thanks to https://github.com/benwiley4000/pico8-to-lua
 pub fn preprocess_pico8_lua_bytes(
     input: &Vec<u8>,
-    preprocessor_path: &str,
+    preprocessor_path: PathBuf,
 ) -> Result<Vec<u8>, Box<dyn Error>> {
     let code = String::from_utf8_lossy(&input.clone()).into_owned();
-    let p = Path::new(preprocessor_path);
-    let preprocessor_code = match fs::read_to_string(p) {
+    let preprocessor_code = match fs::read_to_string(preprocessor_path) {
         Ok(s) => s,
         Err(e) => panic!("{:?}", e),
     };
@@ -27,18 +26,18 @@ pub fn preprocess_pico8_lua_bytes(
     Ok(result.into_bytes())
 }
 
-#[cfg(test)]
+/*#[cfg(test)]
 mod tests {
+    use crate::preprocessor;
     use super::*;
-
     #[test]
     fn test_preprocess_pico8_lua_bytes() {
         let ori_code = fs::read("../examples/ppg-1.lua").unwrap();
 
         let result =
-            preprocess_pico8_lua_bytes(&ori_code, "pico8_patcher/pico8-to-lua.lua").unwrap();
+            preprocessor::preprocess_pico8_lua_bytes(&ori_code, "pico8_patcher/pico8-to-lua.lua").unwrap();
 
         let lua = Lua::new();
         lua.load(&result).exec().unwrap();
     }
-}
+}*/

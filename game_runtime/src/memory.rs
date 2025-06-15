@@ -44,6 +44,7 @@ pub const SCREEN_END: usize = 0x8000;
 pub const EXTENDED_RAM_START: usize = 0x8000;
 pub const EXTENDED_RAM_END: usize = 0x10000; // 0xffff + 1
 
+#[derive(Debug)]
 pub struct Memory {
     pub mem: Box<[u8; MEM_SIZE]>,
 }
@@ -57,11 +58,11 @@ impl Memory {
 
     pub fn init(&mut self, cart: &Cartridge) {
         let data = cart.data();
-        if data.len() > (SFX_END - SPRITE_SHEET_1_START) {
+        if data.len() > (EXTENDED_RAM_END - SPRITE_SHEET_1_START) {
             panic!("Cartridge data too large for memory region");
         }
 
-        self.mem[SPRITE_SHEET_1_START..SFX_END].copy_from_slice(cart.data());
+        self.mem[SPRITE_SHEET_1_START..EXTENDED_RAM_END].copy_from_slice(cart.data());
     }
 
     pub fn read(&self, addr: usize) -> u8 {
@@ -106,9 +107,21 @@ impl Memory {
     }
 
     // These are the read-only getters
-    pub fn read_sprite(&self, sprite: usize) -> &[u8] {
-        let addr = 512 * (sprite / 16) + 4 * (sprite % 16);
-        &self.mem[addr..addr + 64]
+    pub fn read_sprite_sheet(&self) -> &[u8] { // for debug purposes
+        &self.mem[SPRITE_SHEET_1_START..=SPRITE_SHEET_1_END]
+    }
+    
+    pub fn read_sprite(&self, sprite: usize) -> [u8; 32] {
+        let mut sprite_data = [0u8; 32];
+        let base_addr = 512 * (sprite / 16) + 4 * (sprite % 16);
+
+        for row in 0..8 {
+            let offset = base_addr + row * 64;
+            let dest = &mut sprite_data[row * 4..(row + 1) * 4];
+            dest.copy_from_slice(&self.mem[offset..offset + 4]);
+        }
+
+        sprite_data
     }
 
     pub fn read_map_title(&self, x: usize, y: usize) -> u8 {
@@ -157,6 +170,10 @@ impl Memory {
 
     pub fn screen(&self) -> &[u8] {
         &self.mem[SCREEN_START..=SCREEN_END]
+    }
+
+    pub fn screen_mut(&mut self) -> &mut [u8] {
+        &mut self.mem[SCREEN_START..=SCREEN_END]
     }
 
     pub fn extended_map(&self) -> &[u8] {

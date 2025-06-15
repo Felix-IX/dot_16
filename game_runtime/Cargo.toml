@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies]
 mlua = {version = "0.10", features = ["lua52", "vendored"]}
 lang = { path = "../lang" }
+graphics = { path = "../graphics" }
+utils = {path = "../utils"}

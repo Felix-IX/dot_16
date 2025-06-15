@@ -1,9 +1,12 @@
 <component name="ProjectDictionaryState">
   <dictionary name="project">
     <words>
+      <w>adff</w>
       <w>intdiv</w>
       <w>memcpy</w>
       <w>memset</w>
+      <w>pget</w>
+      <w>pset</w>
       <w>tictactoe</w>
       <w>vram</w>
     </words>

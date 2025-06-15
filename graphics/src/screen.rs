@@ -56,9 +56,9 @@ impl<'a> ApplicationHandler for Screen<'a> {
         let window = event_loop
             .create_window(
                 WindowAttributes::default()
-                    .with_title("Resizable Pixels Window")
+                    .with_title("Dot-16")
                     .with_resizable(true)
-                    .with_inner_size(PhysicalSize::new(512, 512)),
+                    .with_inner_size(PhysicalSize::new(1024, 1024)),
             )
             .expect("Failed to create window");
 

@@ -7,6 +7,9 @@
       <sourceFolder url="file://$MODULE_DIR$/vm/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/game_runtime/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/graphics/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/assets/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/utils/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/lang/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>

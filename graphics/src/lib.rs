@@ -1,2 +1,2 @@
-mod renderer;
-mod screen;
+pub mod renderer;
+pub mod screen;

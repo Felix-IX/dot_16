@@ -1,4 +1,5 @@
 use crate::game::Game;
+use graphics::renderer::{get_pixel_color, set_pixel_color};
 use mlua::{Result, Table};
 
 pub fn register_pico8_apis(game: &Game, global_table: &Table) -> Result<()> {
@@ -6,6 +7,9 @@ pub fn register_pico8_apis(game: &Game, global_table: &Table) -> Result<()> {
     let memory_clone_for_peek = game.runtime().memory().clone();
     let memory_clone_for_memset = game.runtime().memory().clone();
     let memory_clone_for_memcpy = game.runtime().memory().clone();
+    let memory_clone_for_pset = game.runtime().memory().clone();
+    let memory_clone_for_pget = game.runtime().memory().clone();
+    let memory_clone_for_spr = game.runtime().memory().clone();
 
     // poke(addr, val)
     {
@@ -57,7 +61,60 @@ pub fn register_pico8_apis(game: &Game, global_table: &Table) -> Result<()> {
                 Ok(())
             },
         )?;
+
         global_table.set("memcpy", memcpy_fn)?;
+    }
+
+    // pset(x, y, col)
+    {
+        let pset_fn = game.runtime().lua_vm().create_function(
+            move |_, (x, y, col): (usize, usize, u8)| {
+                set_pixel_color(memory_clone_for_pset.borrow_mut().screen_mut(), x, y, col);
+
+                Ok(())
+            },
+        )?;
+
+        global_table.set("pset", pset_fn)?;
+    }
+
+    // pget(x, y)
+    {
+        let pget_fn =
+            game.runtime()
+                .lua_vm()
+                .create_function(move |_, (x, y): (usize, usize)| {
+                    let col =
+                        get_pixel_color(memory_clone_for_pget.borrow_mut().screen_mut(), x, y);
+
+                    Ok(col)
+                })?;
+
+        global_table.set("pget", pget_fn)?;
+    }
+
+    // spr(n, x, y, w, h, flip_x, flip_y)
+    {
+        let spr_fn = game.runtime().lua_vm().create_function(
+            move |_,
+                  (n, x, y, w, h, flip_x, flip_y): (
+                usize,
+                usize,
+                usize,
+                usize,
+                usize,
+                bool,
+                bool,
+            )| {
+                let sprite = memory_clone_for_spr.borrow().read_sprite(n);
+
+                // to be implemented...
+
+                Ok(())
+            },
+        )?;
+
+        global_table.set("spr", spr_fn)?;
     }
 
     Ok(())
@@ -66,11 +123,17 @@ pub fn register_pico8_apis(game: &Game, global_table: &Table) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use utils::path_resolver::path_from_workspace_root;
 
     #[test]
     fn test_peek_and_poke() {
-        let mut game = Game::new("../examples/ppg-1.p8.png").expect("Failed to load game");
+        unsafe {
+            std::env::set_var("WORKSPACE_ROOT", "../..");
+        }
 
+        let path = path_from_workspace_root("assets/examples/tictactoe32-0.p8.png");
+        let path_to_preprocessor = path_from_workspace_root("lang/pico8_patcher/pico8-to-lua.lua");
+        let mut game = Game::new(path, path_to_preprocessor).expect("Failed to load game");
         game.init();
 
         let globals = game.runtime().lua_vm().globals();
@@ -104,7 +167,9 @@ mod tests {
 
     #[test]
     fn test_memset_and_memcpy() {
-        let mut game = Game::new("../examples/tictactoe32-0.p8.png").expect("Failed to load game");
+        let path = path_from_workspace_root("assets/examples/tictactoe32-0.p8.png");
+        let path_to_preprocessor = path_from_workspace_root("lang/pico8_patcher/pico8-to-lua.lua");
+        let mut game = Game::new(path, path_to_preprocessor).expect("Failed to load game");
 
         game.init();
 
