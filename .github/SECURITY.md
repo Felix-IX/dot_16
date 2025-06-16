@@ -6,7 +6,6 @@ If you discover a security vulnerability, please **do not create a public issue*
 
 Instead, please report it privately via:
 
-- Email: security@yourdomain.com
 - GitHub private message to [@Felix-IX](https://github.com/Felix-IX)
 
 We will investigate and respond as soon as possible.  
