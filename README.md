@@ -1,4 +1,7 @@
-dot_16/
+# dot_16
+
+A rust-based fantasy game console
+
 * game_runtime/ graphics, audio, io, APIs, memory, lua runtime
 * lang/ cartridge loader, parser
 * assets/ font, color board, sfx, templates

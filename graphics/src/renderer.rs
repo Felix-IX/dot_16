@@ -28,12 +28,19 @@ pub fn render_4bit_vram(
     for byte in vram {
         let lo = byte >> 4;
         let hi = byte & 0x0f;
-        if pixel_index < VRAM_SIZE {
-            frame[pixel_index * 4..pixel_index * 4 + 4].copy_from_slice(&PALETTE[lo as usize]);
-            pixel_index += 1;
-        }
+
+        // All 128 rows of the screen, top to bottom.
+        // Each row contains 128 pixels in 64 bytes.
+        // Each byte contains two adjacent pixels, with the low 4 bits being the left/even pixel
+        // and the high 4 bits being the right/odd pixel.
+
         if pixel_index < VRAM_SIZE {
             frame[pixel_index * 4..pixel_index * 4 + 4].copy_from_slice(&PALETTE[hi as usize]);
+            pixel_index += 1;
+        }
+
+        if pixel_index < VRAM_SIZE {
+            frame[pixel_index * 4..pixel_index * 4 + 4].copy_from_slice(&PALETTE[lo as usize]);
             pixel_index += 1;
         }
     }
