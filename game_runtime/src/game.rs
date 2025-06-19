@@ -1,7 +1,7 @@
 use crate::bindings::register_pico8_apis;
 use crate::runtime::Runtime;
 use lang::rom_loader::Cartridge;
-use mlua::{Function, Value};
+use mlua::Function;
 use std::error::Error;
 use std::path::PathBuf;
 
@@ -17,7 +17,7 @@ impl Game {
     pub fn new(path: PathBuf, path_to_preprocessor: PathBuf) -> Result<Self, Box<dyn Error>> {
         let runtime = Runtime::new()?;
         let cartridge = Cartridge::new(path, path_to_preprocessor)?;
-        runtime.memory().borrow_mut().init(&cartridge);
+        runtime.init(&cartridge);
 
         Ok(Game {
             runtime,
@@ -42,26 +42,21 @@ impl Game {
     }
 
     pub fn run(&mut self) {
-        let code = self.cartridge.code();
-
-        let globals = self.runtime().lua_vm().globals();
-
-        for pair in globals.clone().pairs::<String, Value>() {
-            match pair {
-                Ok((k, v)) => {
-                    println!("Lua global: {} => {:?}", k, v);
-                }
-                Err(e) => println!("Error reading global: {:?}", e),
-            }
+        {
+            let globals = self.runtime().lua_vm().globals();
+            register_pico8_apis(self, &globals).expect("Failed to register Lua APIs");
         }
 
-        register_pico8_apis(&self, &globals).expect("Failed to register Lua APIs");
+        let code = self.cartridge.code();
 
+        // run game code
         self.runtime
             .lua_vm()
             .load(code)
             .exec()
             .expect("Failed to run game");
+
+        let globals = self.runtime().lua_vm().globals();
 
         match globals.get::<Function>("_init") {
             Ok(fn_) => self.init_fn = Some(fn_),

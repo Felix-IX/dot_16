@@ -1,4 +1,6 @@
 const VRAM_SIZE: usize = 128 * 128;
+const SCREEN_WIDTH: usize = 128;
+const SCREEN_HEIGHT: usize = 128;
 
 pub const PALETTE: [[u8; 4]; 16] = [
     [0x00, 0x00, 0x00, 0xFF], // #000000
@@ -64,6 +66,9 @@ pub fn set_pixel_color(vram: &mut [u8], x: usize, y: usize, col: u8) {
 }
 
 pub fn get_pixel_color(vram: &[u8], x: usize, y: usize) -> usize {
+    if x >= 128 || y >= 128 {
+        return 0usize;
+    };
     let pixel_index = y * 128 + x; // which pixel
     let byte_index = pixel_index / 2; // which byte
     let is_high = pixel_index % 2 == 0; // even pixel → high byte
@@ -73,5 +78,64 @@ pub fn get_pixel_color(vram: &[u8], x: usize, y: usize) -> usize {
         (*byte >> 4) as usize
     } else {
         *byte as usize
+    }
+}
+
+/// This API has a performance test
+/// Run `cargo bench --bench draw_sprite` in the terminal
+/// The report file is in /target/criterion/report/index.html
+pub fn draw_sprite_block(
+    vram: &mut [u8],
+    sprite: [[u8; 4]; 8],
+    x: usize,
+    y: usize,
+    w: f32,
+    h: f32,
+    flip_x: bool,
+    flip_y: bool,
+) {
+    let row_bytes = SCREEN_WIDTH / 2;
+
+    let scale_x = w;
+    let scale_y = h;
+
+    for sy in 0..8 {
+        for sx in 0..8 {
+            // Get pixel color
+            let srow = if flip_y { 7 - sy } else { sy };
+            let scol = if flip_x { 7 - sx } else { sx };
+            let byte = sprite[srow][scol / 2];
+            let color = if scol % 2 == 0 {
+                byte & 0x0F
+            } else {
+                byte >> 4
+            };
+
+            // Draw pixel in scale_x * scale_y
+            let px = (x as f32 + sx as f32 * scale_x).round() as usize;
+            let py = (y as f32 + sy as f32 * scale_y).round() as usize;
+            let next_px = (x as f32 + (sx + 1) as f32 * scale_x).round() as usize;
+            let next_py = (y as f32 + (sy + 1) as f32 * scale_y).round() as usize;
+
+            for dy in py..next_py {
+                if dy >= SCREEN_HEIGHT {
+                    continue;
+                }
+                for dx in px..next_px {
+                    if dx >= SCREEN_WIDTH {
+                        continue;
+                    }
+
+                    let index = dy * row_bytes + dx / 2;
+                    let dest = &mut vram[index];
+
+                    if dx % 2 == 0 {
+                        *dest = (*dest & 0xF0) | (color & 0x0F);
+                    } else {
+                        *dest = (*dest & 0x0F) | (color << 4);
+                    }
+                }
+            }
+        }
     }
 }

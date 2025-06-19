@@ -112,7 +112,9 @@ impl Memory {
         &self.mem[SPRITE_SHEET_1_START..=SPRITE_SHEET_1_END]
     }
 
-    pub fn read_sprite(&self, sprite: usize) -> [u8; 32] {
+    // This function includes unsafe code, make sure that the sprite inside cartridge data is
+    // 4 bytes per row, 8 rows (8 * 8 pixels)
+    pub fn read_sprite(&self, sprite: usize) -> [[u8; 4]; 8] {
         let mut sprite_data = [0u8; 32];
         let base_addr = 512 * (sprite / 16) + 4 * (sprite % 16);
 
@@ -122,7 +124,9 @@ impl Memory {
             dest.copy_from_slice(&self.mem[offset..offset + 4]);
         }
 
-        sprite_data
+        let rows = unsafe { *(sprite_data.as_ptr() as *const [[u8; 4]; 8]) };
+
+        rows
     }
 
     pub fn read_map_title(&self, x: usize, y: usize) -> u8 {
@@ -132,7 +136,7 @@ impl Memory {
             // The first 32 rows begin at 0x2000
             self.mem[MAP_ROWS_0_31_START + offset]
         } else {
-            // last 32 rows are in shared area with the sprite sheet
+            // the last 32 rows are in shared area with the sprite sheet
             self.mem[SPRITE_SHEET_2_START + offset]
         }
     }

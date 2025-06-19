@@ -1,5 +1,5 @@
 use crate::game::Game;
-use graphics::renderer::{get_pixel_color, set_pixel_color};
+use graphics::renderer::{draw_sprite_block, get_pixel_color, set_pixel_color};
 use mlua::{Result, Table};
 
 pub fn register_pico8_apis(game: &Game, global_table: &Table) -> Result<()> {
@@ -84,8 +84,7 @@ pub fn register_pico8_apis(game: &Game, global_table: &Table) -> Result<()> {
             game.runtime()
                 .lua_vm()
                 .create_function(move |_, (x, y): (usize, usize)| {
-                    let col =
-                        get_pixel_color(memory_clone_for_pget.borrow_mut().screen_mut(), x, y);
+                    let col = get_pixel_color(memory_clone_for_pget.borrow().screen(), x, y);
 
                     Ok(col)
                 })?;
@@ -95,24 +94,27 @@ pub fn register_pico8_apis(game: &Game, global_table: &Table) -> Result<()> {
 
     // spr(n, x, y, w, h, flip_x, flip_y)
     {
-        let spr_fn = game.runtime().lua_vm().create_function(
-            move |_,
-                  (n, x, y, w, h, flip_x, flip_y): (
-                usize,
-                usize,
-                usize,
-                usize,
-                usize,
-                bool,
-                bool,
-            )| {
-                let sprite = memory_clone_for_spr.borrow().read_sprite(n);
+        let spr_fn =
+            game.runtime().lua_vm().create_function(
+                move |_,
+                      (n, x, y, w, h, flip_x, flip_y): (
+                    usize,
+                    usize,
+                    usize,
+                    f32,
+                    f32,
+                    bool,
+                    bool,
+                )| {
+                    let mut memory_ref = memory_clone_for_spr.borrow_mut();
+                    let sprite = memory_ref.read_sprite(n);
+                    let screen = memory_ref.screen_mut();
 
-                // to be implemented...
+                    draw_sprite_block(screen, sprite, x, y, w, h, flip_x, flip_y);
 
-                Ok(())
-            },
-        )?;
+                    Ok(())
+                },
+            )?;
 
         global_table.set("spr", spr_fn)?;
     }

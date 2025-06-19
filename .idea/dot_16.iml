@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/assets/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/utils/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/graphics/benches" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/lang/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>

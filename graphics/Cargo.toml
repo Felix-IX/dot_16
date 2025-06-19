@@ -7,3 +7,8 @@ license = "MIT"
 [dependencies]
 winit = "0.30"
 pixels = "0.15"
+criterion = { version = "0.6", features = ["html_reports"] }
+
+[[bench]]
+name = "draw_sprite"
+harness = false
