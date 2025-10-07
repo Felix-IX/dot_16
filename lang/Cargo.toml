@@ -6,4 +6,4 @@ license = "MIT"
 
 [dependencies]
 image = "0.25"
-mlua = {version = "0.10", features = ["lua52", "vendored"]}
+mlua = {version = "0.11", features = ["lua52", "vendored"]}
