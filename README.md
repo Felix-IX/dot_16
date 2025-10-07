@@ -1,14 +1,14 @@
-# dot_16
+# .16
 
 A rust-based fantasy game console
 
-* game_runtime/ graphics, audio, io, APIs, memory, lua runtime
+* game runtime/ lua APIs, virtual devices, lua runtime
 * lang/ cartridge loader, parser
 * assets/ font, color board, sfx, templates
 * sdk/ API & doc for developers
 * frontend/ editor, emulator (Rust GUI / Web)
 * examples/ example games
-* tools/ builder, packer, exporter
+* tools/ packer, exporter
 
 ---
 
@@ -21,6 +21,12 @@ A rust-based fantasy game console
 ## 🛡️ Security Policy
 
 Please refer to our [Security Policy](./.github/SECURITY.md) for details on reporting vulnerabilities.
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
 ---
 

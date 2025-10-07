@@ -6,7 +6,7 @@ If you discover a security vulnerability, please **do not create a public issue*
 
 Instead, please report it privately via:
 
-- GitHub private message to [@Felix-IX](https://github.com/Felix-IX)
+- Email to [contact@felium.codes](contact@felium.codes)
 
 We will investigate and respond as soon as possible.  
 Thank you for helping to keep this project safe!
@@ -17,7 +17,7 @@ Thank you for helping to keep this project safe!
 
 We currently support and patch the following versions:
 
-| Version | Supported          |
-|---------|--------------------|
-| 0.1.x   | ✅ Yes              |
-| < 0.1   | ❌ No               |
+| Version  | Supported          |
+|----------|--------------------|
+| 0.1.x    | ✅ Yes              |
+| <= 0.1.0 | ❌ No               |
