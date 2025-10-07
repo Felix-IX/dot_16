@@ -6,7 +6,7 @@ If you discover a security vulnerability, please **do not create a public issue*
 
 Instead, please report it privately via:
 
-- Email to [contact@felium.codes](contact@felium.codes)
+- Email to **contact@felium.codes**
 
 We will investigate and respond as soon as possible.  
 Thank you for helping to keep this project safe!

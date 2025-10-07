@@ -81,6 +81,6 @@ Run `cargo test` before opening PRs
 
 ## 📜 License
 
-By contributing, you agree that your contributions will be licensed under the same license as this project (see [LICENSE](./LICENSE)).
+By contributing, you agree that your contributions will be licensed under the same license as this project (see [LICENSE](../LICENSE)).
 
 Feel free to open a discussion or issue if anything is unclear. Happy hacking! 🚀
